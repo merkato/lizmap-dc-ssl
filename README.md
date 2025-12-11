@@ -1,27 +1,7 @@
-# Run Lizmap stack with docker-compose
-
-Run a complete Lizmap stack with test data. 
-
-- Lizmap Web Client
-- QGIS Server with Py-QGIS-Server
-- PostgreSQL with PostGIS
-- Redis
-
-**Note**: this is a sample configuration for testing Lizmap web client with QGIS and WPS features.
-
-❗**If you want to use it on a production server, you will need to make adjustments to meet your
-production requirements.**
-
 ## Requirements
 
 - Docker Engine also knonw as Docker CE
 - Docker Compose plugin
-
-We recommend to use the docker's repository https://docs.docker.com/engine/install/
-
-## Quick start
-
-Execute the commands below for your system and open your browser at http://localhost:8090.
 
 ### Linux
 
@@ -29,42 +9,29 @@ In a shell, configure the environment:
 ```bash
 ./configure.sh configure
 ```
-Or if you want to test specific version (here last 3.X.Y version):
-```bash
-LIZMAP_VERSION_TAG=3.9 ./configure.sh configure
-```
+Jeśli używamy SFTP dodaj linie z env.sftp do .env do env.default i configure.sh
+
 
 Run the stack:
 ```bash
 docker compose pull
 docker compose up -d
 ```
+Wejdź w NPM
+http://adres-ip:81 
 
-To run lizmap visible to another system, prefix the docker command with a variable. NB! This will be plain HTTP with no encryption and not suitable for production.
-```bash
-LIZMAP_PORT=EXTERNAL_IP_HERE:80 docker compose up
+Utwórz nowy Proxy host, adres wewnętrzny web, port 8080, Block Common Exploits, Websockets Support
+W zakładce SSL wskaż źródło certyfikatu. Force SSL, HTTP/2 Support.
+
+W prawym górnym rogu ustawienia zaawansowane:
+```
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header Host $host;
 ```
 
-### Windows
+Lizmap powinna być dostępna pod https://twoj-ip
 
-In order to user Docker on Windows you may install [Docker desktop for Windows](https://docs.docker.com/desktop/windows/install/)
-
-
-If you have some distribution installed (Ubuntu, ...) in WSL, you can simply run the linux command as above, once in it.
-
-Or in PowerShell, run the following command to set up some files
-```bash
-configure.bat
-``` 
-You can then launch the docker using
-```bash
-docker compose --env-file .env.windows up
-```
-Or if you want to test specific version, you can edit `.env.windows` and change (here last 3.X.Y version):
-
-```bash
-LIZMAP_VERSION_TAG=3.9
-```
 
 ## Running the first time
 
@@ -80,7 +47,7 @@ Default login is `admin`, password `admin`. It will be asked to change it at fir
 ## Add your own project
 
 You need to :
-* create a directory in `lizmap/instances`
+* create a directory in `lizmap/instances` - uwaga - popraw SFTP
 * visit http://localhost:8090/admin.php/admin/maps/
 * in the Lizmap admin panel, add the directory you created
 * add one or more QGIS projects with the Lizmap CFG file in the directory
