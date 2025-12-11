@@ -143,7 +143,20 @@ services:
     depends_on:
       - npm-db
       - web
-
+# -------------------------------------------------------------------------
+  # 7. SFTP (Do przesyłania projektów z QGIS)
+  # -------------------------------------------------------------------------
+  sftp:
+    image: atmoz/sftp
+    container_name: lizmap-sftp
+    restart: unless-stopped
+    volumes:
+      # Mapujemy ten sam katalog projektów, co widzi QGIS Server i Lizmap Web - sprawdź na który ustawiamy
+      - ./projects:/home/${SFTP_USER}/projects
+    ports:
+      # Port SFTP (standardowo 22, ale tu użyjemy 2222, by nie gryzł się z SSH serwera)
+      - "2222:22"
+    command: ${SFTP_USER}:${SFTP_PASSWORD}:1001
 volumes:
     postgis_data:
         driver: local
