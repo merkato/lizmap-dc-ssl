@@ -152,7 +152,7 @@ services:
     restart: unless-stopped
     volumes:
       # Mapujemy ten sam katalog projektów, co widzi QGIS Server i Lizmap Web - sprawdź na który ustawiamy
-      - ./projects:/home/${SFTP_USER}/projects
+      - { type: bind, source: "${LIZMAP_PROJECTS}", target: /srv/projects }
     ports:
       # Port SFTP (standardowo 22, ale tu użyjemy 2222, by nie gryzł się z SSH serwera)
       - "2222:22"
