@@ -86,6 +86,8 @@ services:
       - { type: volume, source: redis_data, target: /data }
   web:
     image: nginx:alpine
+    environment:
+      LIZMAP_HOST: "webgis.giswgorach.pl"
     user: ${LIZMAP_UID}:${LIZMAP_GID}
     volumes:
       - { type: bind, source: "${LIZMAP_DIR}/etc/nginx.conf", target: /etc/nginx/nginx.conf }
