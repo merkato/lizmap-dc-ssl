@@ -1,4 +1,16 @@
 services:
+  # --- Baza danych dla Nginx Proxy Manager ---
+  npm-db:
+    image: mariadb:10.6
+    container_name: lizmap-npm-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NPM_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: npm
+      MYSQL_USER: ${NPM_DB_USER}
+      MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
+    volumes:
+      - ./data/npm-db:/var/lib/mysql
   lizmap:
     image: 3liz/lizmap-web-client:${LIZMAP_VERSION_TAG}
     environment:
@@ -107,6 +119,28 @@ services:
       default:
         aliases:
           - ${POSTGIS_ALIAS}
+
+# --- Nginx Proxy Manager ---
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: lizmap-npm
+    restart: unless-stopped
+    ports:
+      - "80:80"     # Ruch HTTP
+      - "443:443"   # Ruch HTTPS (Let's Encrypt)
+      - "81:81"     # Panel Admina
+    environment:
+      DB_MYSQL_HOST: npm-db
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: ${NPM_DB_USER}
+      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD}
+      DB_MYSQL_NAME: npm
+    volumes:
+      - ./data/npm-data:/data
+      - ./data/npm-letsencrypt:/etc/letsencrypt
+    depends_on:
+      - npm-db
+      - web
 
 volumes:
     postgis_data:
