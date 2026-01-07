@@ -1,15 +1,17 @@
 ## Requirements
 
-- Docker Engine also knonw as Docker CE
+- Docker Engine also known as Docker CE
 - Docker Compose plugin
 
 Środowisko Docker wraz z konfiguracją podsieci instalujemy przy pomocy
+
 ```bash
 ./prepare_server.sh
+newgrp docker
 ```
-Nastąpi instalacja pakietów dockera z repo, a następnie instalacja, rekonfiguracja deamona, aby korzystał z podsieci 192.168.199.x i 192.168.200.x, a potem jego restart
+Nastąpi instalacja pakietów dockera z repo, a następnie instalacja, rekonfiguracja deamona, aby korzystał z podsieci 192.168.149.x i 192.168.150.x, a potem jego restart
 
-### Linux
+### Stack
 Upewnij się że  uruchamiasz całość poza kontem administratora, a użytkownika dopisałeś już do grupy docker. W tej chwili prepare_server.sh już o to dba.
 
 
