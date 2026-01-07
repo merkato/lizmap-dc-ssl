@@ -23,11 +23,13 @@ INSTALL_SOURCE=${INSTALL_SOURCE:-$scriptdir}
 #
 
 _makedirs() {
+    # Podstawowe katalogi Lizmap
     mkdir -p $INSTALL_DEST/plugins \
              $INSTALL_DEST/processing \
              $INSTALL_DEST/wps-data \
              $INSTALL_DEST/www \
              $INSTALL_DEST/cache \
+             $INSTALL_DEST/redis \
              $INSTALL_DEST/var/log/nginx \
              $INSTALL_DEST/var/nginx-cache \
              $INSTALL_DEST/var/lizmap-theme-config \
@@ -36,8 +38,18 @@ _makedirs() {
              $INSTALL_DEST/var/lizmap-log \
              $INSTALL_DEST/var/lizmap-modules \
              $INSTALL_DEST/var/lizmap-my-packages
-}
 
+    # Katalogi dla baz danych
+    mkdir -p $INSTALL_DEST/db/npm-mariadb \
+             $INSTALL_DEST/db/postgis-lizmap \
+             $INSTALL_DEST/db/postgis-gis \
+             $INSTALL_DEST/etc/gis.init.d
+
+    # Opcjonalne: Ustawienie uprawnień, aby kontenery mogły pisać w tych folderach
+    # 999 to domyślny UID dla PostgreSQL i MariaDB w większości obrazów Docker
+    chown -R 999:999 $INSTALL_DEST/db/postgis-lizmap $INSTALL_DEST/db/postgis-gis $INSTALL_DEST/db/npm-mariadb
+    chown -R 999:999 $INSTALL_DEST/redis
+}
 _makenv() {
     source $INSTALL_SOURCE/env.default
     if [ "$LIZMAP_CUSTOM_ENV" = "1" ]; then
@@ -68,6 +80,11 @@ _makenv() {
 		NPM_DB_USER=$NPM_DB_USER
 		NPM_DB_PASSWORD=$NPM_DB_PASSWORD
 		LIZMAP_HOST=$LIZMAP_HOST
+        POSTGRES_GIS_PASSWORD=$POSTGRES_GIS_PASSWORD
+        POSTGIS_GIS_PORT=$POSTGIS_GIS_PORT
+        POSTGRES_GIS_DB=$POSTGRES_GIS_DB
+        POSTGRES_GIS_USER=$POSTGRES_GIS_USER
+        POSTGRES_GIS_USER_PASSWORD=$POSTGRES_GIS_USER_PASSWORD
 		EOF
     fi
 }

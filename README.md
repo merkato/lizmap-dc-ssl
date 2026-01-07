@@ -3,20 +3,27 @@
 - Docker Engine also knonw as Docker CE
 - Docker Compose plugin
 
-### Linux
+Środowisko Docker wraz z konfiguracją podsieci instalujemy przy pomocy
+```bash
+./prepare_server.sh
+```
+Nastąpi instalacja pakietów dockera z repo, a następnie instalacja, rekonfiguracja deamona, aby korzystał z podsieci 192.168.199.x i 192.168.200.x, a potem jego restart
 
-In a shell, configure the environment:
+### Linux
+Upewnij się że  uruchamiasz całość poza kontem administratora, a użytkownika dopisałeś już do grupy docker. W tej chwili prepare_server.sh już o to dba.
+
+
+W pierwszej kolejności uruchom konfigurację, która utworzy struktury katalogów, oraz ustawi zmienne systemowe:
 ```bash
 ./configure.sh configure
 ```
-Jeśli używamy SFTP dodaj linie z env.sftp do .env do env.default i configure.sh
 
-
-Run the stack:
+Następnie uruchom kontenery:
 ```bash
 docker compose pull
 docker compose up -d
 ```
+
 Wejdź w NPM
 http://adres-ip:81 
 
@@ -33,24 +40,17 @@ proxy_set_header Host $host;
 Lizmap powinna być dostępna pod https://twoj-ip
 
 
-## Running the first time
+## Pierwsze uruchomienie
 
-The previous commands create a docker-compose environment and run the stack
-
-The Lizmap service will start two toys projects that you will have to configure in the Lizmap
-interface.
-
-See the [Lizmap documentation](https://docs.lizmap.com) for how to configure Lizmap at first run.
-
-Default login is `admin`, password `admin`. It will be asked to change it at first login.
+Default login `admin`, password `admin`. Zapyta cię o zmianę po pierwszym logowaniu, zrób to.
 
 ## Add your own project
 
-You need to :
-* create a directory in `lizmap/instances` - uwaga - popraw SFTP
-* visit http://localhost:8090/admin.php/admin/maps/
-* in the Lizmap admin panel, add the directory you created
-* add one or more QGIS projects with the Lizmap CFG file in the directory
+Po kolei:
+* utwórz katalog w `lizmap/instances` 
+* zajrzyj do http://localhost:8090/admin.php/admin/maps/
+* W panelu admina Lizmap, dodaj katalog który utworzyłeś
+* Dodaj jeden lub więcej projektów QGIS (.qgs + .cfg) do tego katalogu.
 
 ## Reset the configuration
 
