@@ -21,6 +21,9 @@ INSTALL_SOURCE=${INSTALL_SOURCE:-$scriptdir}
 #
 # Commands
 #
+_generate_password() {
+    openssl rand -base64 18 | tr -d '/+=' | cut -c1-16
+}
 
 _makedirs() {
     # Podstawowe katalogi Lizmap
@@ -43,13 +46,16 @@ _makedirs() {
     mkdir -p $INSTALL_DEST/db/npm-mariadb \
              $INSTALL_DEST/db/postgis-lizmap \
              $INSTALL_DEST/db/postgis-gis \
-             $INSTALL_DEST/etc/gis.init.d
+             $INSTALL_DEST/etc/postgres.init.d \
+             $INSTALL_DEST/etc/gis.init.d \
+             $INSTALL_DEST/db/barman-backups
 
     # Opcjonalne: Ustawienie uprawnień, aby kontenery mogły pisać w tych folderach
     # 999 to domyślny UID dla PostgreSQL i MariaDB w większości obrazów Docker
-    chown -R 999:999 $INSTALL_DEST/db/postgis-lizmap $INSTALL_DEST/db/postgis-gis $INSTALL_DEST/db/npm-mariadb
+    chown -R 999:999 $INSTALL_DEST/db/postgis-lizmap $INSTALL_DEST/db/postgis-gis $INSTALL_DEST/db/npm-mariadb $INSTALL_DEST/db/barman-backups
     chown -R 999:999 $INSTALL_DEST/redis
 }
+
 _makenv() {
     source $INSTALL_SOURCE/env.default
     if [ "$LIZMAP_CUSTOM_ENV" = "1" ]; then
@@ -85,8 +91,42 @@ _makenv() {
         POSTGRES_GIS_DB=$POSTGRES_GIS_DB
         POSTGRES_GIS_USER=$POSTGRES_GIS_USER
         POSTGRES_GIS_USER_PASSWORD=$POSTGRES_GIS_USER_PASSWORD
+        BARMAN_PASS=$BARMAN_PASS
 		EOF
     fi
+}
+_make_barman_conf() {
+    echo "Generowanie konfiguracji Barmana w etc/barman.d/..."
+    # Załaduj zmienne z .env
+    export $(grep -v '^#' "$ENV_FILE" | xargs)
+
+    # Funkcja pomocnicza do wypełniania plików .conf zmiennymi
+    # Tworzymy postgis.conf
+    cat <<EOF > "$INSTALL_DEST/etc/barman.d/postgis.conf"
+[postgis]
+description = "Glowna baza danych Lizmap"
+conninfo = host=postgis user=barman dbname=postgres password=$BARMAN_PASS
+streaming_conninfo = host=postgis user=barman password=$BARMAN_PASS
+streaming_archiver = on
+slot_name = barman_lizmap_slot
+backup_method = postgres
+archiver = on
+EOF
+
+    # Tworzymy bazagis.conf
+    cat <<EOF > "$INSTALL_DEST/etc/barman.d/bazagis.conf"
+[bazagis]
+description = "Zewnetrzna baza danych GIS"
+conninfo = host=bazagis user=barman dbname=postgres password=$BARMAN_PASS
+streaming_conninfo = host=bazagis user=barman password=$BARMAN_PASS
+streaming_archiver = on
+slot_name = barman_slot
+backup_method = postgres
+archiver = on
+EOF
+
+    # Nadanie uprawnień dla Barmana (UID 999)
+    chown -R 999:999 "$INSTALL_DEST/etc/barman.d/"
 }
 
 _makepgservice() {
@@ -142,6 +182,12 @@ _configure() {
 
     echo "Creating directories"
     _makedirs
+
+    #
+    # Create barman confs
+    #
+    echo "Creating barman.d confs"
+    _make_barman_conf
 
     #
     # Create pg_service.conf
