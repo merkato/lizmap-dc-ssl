@@ -31,10 +31,10 @@ sudo mkdir -p /etc/docker
 # default-address-pools: Pula, z której Docker Compose będzie tworzył sieci projektowe
 sudo tee /etc/docker/daemon.json <<EOF
 {
-  "bip": "192.168.199.1/24",
+  "bip": "192.168.149.1/24",
   "default-address-pools": [
     {
-      "base": "192.168.200.0/21",
+      "base": "192.168.150.0/21",
       "size": 24
     }
   ]
@@ -58,7 +58,7 @@ echo "Konfiguracja pooli adresowych została załadowana."
 
 echo "--- GOTOWE ---"
 echo "Teraz Twój serwer jest bezpieczny dla VPN Cisco. Wszystkie kontenery"
-echo "będą otrzymywać adresy z zakresu 192.168.200.x i 192.168.199.x."
+echo "będą otrzymywać adresy z zakresu 192.168.149.x i 192.168.150.x."
 
 echo "--- 7. Zarządzanie uprawnieniami użytkownika ---"
 # Sprawdzamy, kto wywołał skrypt (jeśli przez sudo, używamy SUDO_USER)

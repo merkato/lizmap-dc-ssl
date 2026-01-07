@@ -52,7 +52,7 @@ _makedirs() {
 
     # Opcjonalne: Ustawienie uprawnień, aby kontenery mogły pisać w tych folderach
     # 999 to domyślny UID dla PostgreSQL i MariaDB w większości obrazów Docker
-    chown -R 999:999 $INSTALL_DEST/db/postgis-lizmap $INSTALL_DEST/db/postgis-gis $INSTALL_DEST/db/npm-mariadb $INSTALL_DEST/db/barman-backups
+    chown -R 999:999 $INSTALL_DEST/db
     chown -R 999:999 $INSTALL_DEST/redis
 }
 
