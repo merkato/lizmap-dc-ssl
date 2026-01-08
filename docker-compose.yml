@@ -81,7 +81,7 @@ services:
       - ${OWS_PORT}:8080
     restart: unless-stopped
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     volumes:
       - { type: bind, source: "${LIZMAP_DIR}/redis", target: /data }
   web:
