@@ -143,7 +143,7 @@ services:
     depends_on:
       - npm-db
       - web
-bazagis:
+  bazagis:
     image: postgis/postgis:17-3.5
     container_name: bazagis
     restart: unless-stopped
@@ -155,11 +155,25 @@ bazagis:
       - POSTGRES_GIS_DB=${POSTGRES_GIS_DB}
       - POSTGRES_GIS_USER=${POSTGRES_GIS_USER}
       - POSTGRES_GIS_USER_PASSWORD=${POSTGRES_GIS_USER_PASSWORD}
+      - BARMAN_PASS=${BARMAN_PASS}
     volumes:
       - { type: bind, source: "${LIZMAP_DIR}/db/postgis-gis", target: /var/lib/postgresql/data }
       - { type: bind, source: "${LIZMAP_DIR}/etc/gis.init.d", target: /docker-entrypoint-initdb.d, read_only: true }
     ports:
-      - "49666:5432" # Zgodnie z Twoim wymogiem: 49666 na zewnątrz, 5432 wewnątrz
+      - ${POSTGIS_GIS_PORT}:5432 # Na zewnątrz 49666, wewnątrz 5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres -q || exit 1"]
       interval: 10s
+
+  barman:
+    image: barman:latest # Zastanowimy się nad ostatecznym
+    container_name: lizmap-barman
+    restart: unless-stopped
+    environment:
+      - BARMAN_LOG_LEVEL=INFO
+    volumes:
+      - { type: bind, source: "${LIZMAP_DIR}/db/barman-backups", target: /var/lib/barman }
+      - { type: bind, source: "${LIZMAP_DIR}/etc/barman.d", target: /etc/barman.d, read_only: true }
+    depends_on:
+      - postgis
+      - bazagis
