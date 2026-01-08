@@ -166,7 +166,7 @@ services:
       interval: 10s
 
   barman:
-    image: 3liz/barman:latest # Zastanowimy się nad ostatecznym
+    image: ubcctlt/barman:latest # Zastanowimy się nad ostatecznym
     container_name: lizmap-barman
     restart: unless-stopped
     environment:
