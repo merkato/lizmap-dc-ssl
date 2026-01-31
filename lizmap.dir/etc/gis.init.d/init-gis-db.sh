@@ -39,6 +39,7 @@ EOF
 
 # 3. Wykonanie operacji SQL (użytkownicy i bazy)
 psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
+    ALTER SYSTEM SET password_encryption = 'scram-sha-256';
     -- Użytkownik GIS
     CREATE ROLE "$POSTGRES_GIS_USER" WITH NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN PASSWORD '$POSTGRES_GIS_USER_PASSWORD';
     CREATE DATABASE "$POSTGRES_GIS_DB";
@@ -50,7 +51,7 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
     -- Tworzenie fizycznego slotu replikacyjnego dla Barmana
     SELECT pg_create_physical_replication_slot('barman_slot');
     
-    ALTER SYSTEM SET password_encryption = 'scram-sha-256';
+
 EOSQL
 
 # 4. Inicjalizacja schematów w bazie GIS
