@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Konfiguracja ścieżek
-PROJECT_DIR="/mnt/lizmap"
+PROJECT_DIR="/opt/lizmap"
 BARMAN_DATA="$PROJECT_DIR/db/barman-backups"
 REMOTE_SERVER="backup-server-ip"
-REMOTE_DEST="/mnt/backups/lizmap-server/"
+REMOTE_DEST="/opt/backups/lizmap-server/"
 
 echo "--- 1. Wymuszenie backupu Barmana (opcjonalnie) ---"
 # Barman zazwyczaj robi backupy z automatu, ale możemy wymusić pełny co noc
