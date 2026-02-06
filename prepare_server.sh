@@ -3,10 +3,10 @@
 # Zatrzymanie w razie błędu
 set -e
 
-echo "--- 1. Usuwanie ewentualnych starych wersji ---"
+echo "--- Usuwanie ewentualnych starych wersji ---"
 sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
 
-echo "--- 2. Instalacja zależności i repozytorium Docker ---"
+echo "--- Instalacja zależności i repozytorium Docker ---"
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -20,10 +20,7 @@ echo \
 
 sudo apt-get update
 
-echo "--- 3. Instalacja Docker Engine i Docker Compose ---"
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-echo "--- 4. Konfiguracja sieci (eliminacja 172.x - rozwiązanie konfliktu VPN) ---"
+echo "--- Konfiguracja sieci (eliminacja 172.x - rozwiązanie konfliktu VPN) ---"
 sudo mkdir -p /etc/docker
 
 # Tworzymy daemon.json
@@ -41,14 +38,19 @@ sudo tee /etc/docker/daemon.json <<EOF
 }
 EOF
 
-echo "--- 5. Restart i czyszczenie sieci ---"
+echo "--- Instalacja Docker Engine i Docker Compose ---"
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+
+
+echo "--- Restart i czyszczenie sieci ---"
 # Przeładowanie konfiguracji
 sudo systemctl restart docker
 
 # Jeśli wcześniej były jakieś sieci, czyścimy je, aby Docker nie trzymał starych tras
 sudo docker network prune -f
 
-echo "--- 6. Weryfikacja zmian ---"
+echo "--- Weryfikacja zmian ---"
 # Sprawdzenie adresu docker0
 DOCKER_IP=$(ip addr show docker0 | grep "inet " | awk '{print $2}')
 echo "Główny mostek Docker (docker0) działa na: $DOCKER_IP"
@@ -60,7 +62,7 @@ echo "--- GOTOWE ---"
 echo "Teraz Twój serwer jest bezpieczny dla VPN Cisco. Wszystkie kontenery"
 echo "będą otrzymywać adresy z zakresu 192.168.149.x i 192.168.150.x."
 
-echo "--- 7. Zarządzanie uprawnieniami użytkownika ---"
+echo "--- Zarządzanie uprawnieniami użytkownika ---"
 # Sprawdzamy, kto wywołał skrypt (jeśli przez sudo, używamy SUDO_USER)
 REAL_USER=${SUDO_USER:-$USER}
 
@@ -78,3 +80,15 @@ else
     echo ""
     echo "Następnie możesz uruchomić swój skrypt configure.sh."
 fi
+
+# Tworzymy grupę dockeradmins i dodajemy do niej administratorów usługi
+sudo groupadd dockeradmins
+sudo usermod -aG dockeradmins $USER
+# Przełądowanie uprawnień
+newgrp dockeradmins
+groups
+
+# Zmiana uprawnień dla grupy dockeradmins aby była właścicielem.
+sudo chown -R :dockeradmins /opt/lizmap/lizmap-ssl
+sudo chmod -R 775 /opt/lizmap/lizmap-ssl
+sudo chmod g+s /opt/lizmap/lizmap-ssl
